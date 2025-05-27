@@ -37,46 +37,37 @@ const LoginPage = () => {
         return;
       }
 
-      // Sign in with Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (authError) throw authError;
-
-      // Get user data from our custom users table
-      const { data: userData, error: userError } = await supabase
+      // Check user credentials in users table
+      const { data: user, error } = await supabase
         .from('users')
         .select('*')
-        .eq('id', authData.user.id)
+        .eq('email', email)
+        .eq('password', password) // Note: In a production app, you should hash the password
+        .eq('user_type', userType)
         .single();
 
-      if (userError) throw userError;
-
-      // Verify user type matches
-      if (userData.user_type !== userType) {
-        throw new Error('Selected user type does not match your account type');
+      if (error || !user) {
+        throw new Error('Invalid credentials or user type. Please check your details.');
       }
 
-      // Store session data
+      // Store user data in localStorage
       localStorage.setItem('dabbaDelightUser', JSON.stringify({
-        id: userData.id,
-        email: userData.email,
-        userType: userData.user_type,
+        id: user.id,
+        email: user.email,
+        userType: user.user_type,
         loginTime: new Date().toISOString()
       }));
 
       toast({
         title: "Login Successful!",
-        description: `Welcome back! You are logged in as a ${userData.user_type}.`,
+        description: `Welcome back! You are logged in as a ${user.user_type}.`,
       });
 
       // Trigger event for UI updates
       window.dispatchEvent(new Event('dabbaUserChanged'));
       
       // Navigate based on user type
-      switch (userData.user_type) {
+      switch (user.user_type) {
         case 'customer':
           navigate('/dashboard/customer');
           break;

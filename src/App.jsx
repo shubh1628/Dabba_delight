@@ -18,6 +18,7 @@ import HousewifeDashboard from '@/pages/dashboards/HousewifeDashboard';
 import VendorDashboard from '@/pages/dashboards/VendorDashboard';
 import DeliveryPartnerDashboard from '@/pages/dashboards/DeliveryPartnerDashboard';
 import AdminDashboard from '@/pages/dashboards/AdminDashboard';
+import UsersList from './pages/UsersList';
 
 const ProtectedRoute = ({ children, allowedUserTypes }) => {
   const user = JSON.parse(localStorage.getItem('dabbaDelightUser'));
@@ -51,6 +52,7 @@ function App() {
               <Route path="/terms" element={<TermsConditionsPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignUpPage />} />
+              <Route path="/userlist" element={<UsersList />} />
               
               <Route 
                 path="/dashboard/customer" 

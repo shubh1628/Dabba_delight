@@ -47,22 +47,40 @@ const SignupPage = () => {
         return;
       }
 
-      // Sign up with Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
+      // Check if user already exists
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email)
+        .single();
+
+      if (existingUser) {
+        toast({
+          title: "Signup Failed",
+          description: "User with this email already exists.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Insert new user into users table
+      const { data: newUser, error } = await supabase
+        .from('users')
+        .insert([
+          {
+            email,
+            password, // Note: In a production app, you should hash the password
             user_type: userType,
           }
-        }
-      });
+        ])
+        .select()
+        .single();
 
-      if (authError) throw authError;
+      if (error) throw error;
 
       toast({
         title: "Signup Successful!",
-        description: "Please check your email to verify your account.",
+        description: "Your account has been created.",
       });
 
       // Navigate to login page
